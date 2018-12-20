@@ -11,9 +11,9 @@ class UsersController < Clearance::UsersController
   
       if @user.save
         sign_in @user
-        render template: "users/show"
+        redirect_to @user
       else
-        render template: "users/new"
+        redirect_to sign_up_path
       end
     end
 
@@ -34,7 +34,7 @@ class UsersController < Clearance::UsersController
     def update
       @user = User.find(params[:id])
       if @user.update(update_user_params)
-        redirect_to user_path
+        redirect_to @user
       else
         render 'edit'
       end
