@@ -70,7 +70,7 @@ gem 'mini_magick'
 
 # Figaro gem
 gem 'figaro'
-gem 'unirest'
+
 # Recipe gem
 gem 'food2fork'
 
