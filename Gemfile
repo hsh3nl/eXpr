@@ -77,9 +77,8 @@ gem 'food2fork'
 # OCR_Space gem 
 gem 'ocr_space'
 
-# AWS gem
-gem 'carrierwave-aws'
-gem 'aws-sdk-rails'
+# Cloudinary gem
+gem 'cloudinary', '~> 1.9.1'
 
 # Serviceworker Rails
 gem 'serviceworker-rails'
