@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script async src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+<!-- Load an icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<%# Load default font %>
+<link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Krub" rel="stylesheet">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-tract':'reload' %>  <%= javascript_include_tag 'application' %>
+  <%= csrf_meta_tag %>
+<link rel="manifest" href="/manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes"></head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" id='navi-bar'>
+    
+    <button class="navbar-toggler " type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon btn-sm"></span>
+    </button>
+    <a class="navbar-brand" id='expr' href="/">eXpr.</a>
+    <% if signed_in? %>
+      <i class="fa fa-microphone fa-lg" id='global-search-btn' ></i>
+    <% end %> 
+
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <% if signed_in? %> 
+      <li class="nav-item">
+        <a class="nav-link" href="/users/<%=current_user.id%>/groceries">My Groceries</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/users/<%=current_user.id%>">My Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/sign_out" data-method="delete">Log Out</a>
+      </li>
+      <% else %>
+      <li class="nav-item">
+        <a href="/sign_up" class="nav-link">Sign Up</a>
+      </li>
+      <li class="nav-item">
+        <a href="/sign_in" class="nav-link">Login</a>
+      </li>
+      <% end %> 
+    </ul>
+  </div>
+</nav>
+
+  <div id="flash">
+    <% flash.each do |key, value| -%>
+      <div id="flash_<%= key %>"><%=h value %></div>
+    <% end %>
+  </div>
+
+
+<%# Load this font first before overiding those specified in individual views %>
+
+  <style>
+    body {
+      font-family: 'Niramit', sans-serif;
+    }
+  </style>
+
+
+  <%= yield %>
+</body>
+
+<style>
+body {
+  background-color: rgba(222,220,222,1);
+}
+#global-search-btn {
+  color: white;
+}
+
+#navi-bar {
+        box-shadow: 0 0 1em 0.2em rgba(70,70,70,0.5);
+}
+
+#expr {
+  font-family: 'Krub', sans-serif;
+}
+
+</style>
+</html>
+
+<script>
+
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+domain_name = window.location.protocol + "//" + window.location.host + "/";
+
+$('#global-search-btn').click(function(){
+  event.preventDefault();
+  $(this).attr("style", "color:red;");
+
+  var recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  // VOICE RECOGNITION SEGMENT
+  recognition.start();
+
+  recognition.onspeechend = function() {
+    recognition.stop();
+  }
+
+  recognition.onresult = function(event) {
+    var last = event.results.length - 1;
+    var voice_result = event.results[last][0].transcript;
+    var confidence = event.results[0][0].confidence
+    console.log(voice_result+ ', detected with confidence: ' + confidence);
+  
+    fetch('/search', {
+      method: 'post',
+      body: JSON.stringify({text: {value: voice_result, domain: domain_name}}),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': Rails.csrfToken()
+      },
+      credentials: 'same-origin'
+      }).then(function(response) {
+        response.json().then(function(data){
+          if ( (data.error == 1) ) {
+              alert("Could not understand: " + data.value)
+          }
+          else {
+              console.log(data.value),
+              window.location.assign(data.value)
+          }        
+        })
+      })
+      $('#global-search-btn').attr("style", "color:white;");
+  }
+
+
+
+
+
+})
+
+</script>
+

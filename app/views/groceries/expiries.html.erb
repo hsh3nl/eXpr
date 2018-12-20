@@ -1,0 +1,82 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+<div class="card">
+  <div class="box">
+    <% if @days %>
+    <h3>Expiring in <%=@days%> days</h3>
+    <% else %>
+    <h3>Expiring in 3 days</h3>
+    <% end %>
+
+    <div class="ui-widget form-inline mb-2 ">
+      <input id="exp-date-input" type="text" placeholder="Other dates.." class='form-control col-9 mr-2 mt-2 mb-2'>
+      <button id='exp-find' class='btn-sm btn-primary mr-2 mt-2 mb-2'>Go</button>
+    </div>
+
+
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Days Left</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @exps.each do |exp,i| %>
+          <tr>
+            <div>
+              <td><%= exp.ingredient %></td> 
+              <td style='text-align:center;'><%= exp.expiry_countdown %></td>
+              <td><%= link_to '<i class="far fa-trash-alt"></i>'.html_safe, user_grocery_path(exp.user, exp), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+            </div>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.card {   
+    top: 3vh;
+    margin: 0 auto;
+    width:350px;
+    min-height:5px;
+    background:#fff;
+    box-shadow: 0.2em 0.2em 0.8em 0.1em rgba(83, 83, 83, 0.3);
+    border-radius:0.5em;
+    transition:0.5s;
+}
+.box {
+    margin: 20px;
+}
+
+</style>
+
+<script>
+  $('#exp-find').click( function() {
+    const domain = window.location.origin
+    const day_expire = $('#exp-date-input').val()
+    console.log(domain + '/users/' + <%= current_user.id%> + '/expires?days=' + day_expire)
+    window.location.assign(domain + '/users/' + <%= current_user.id%> + '/expiries?days=' + day_expire)
+  });
+
+
+  $('#exp-date-input').bind("enterKey",function(e){
+    const domain = window.location.origin
+    const day_expire = $('#exp-date-input').val()
+    console.log(domain + '/users/' + <%= current_user.id%> + '/expires?days=' + day_expire)
+    window.location.assign(domain + '/users/' + <%= current_user.id%> + '/expiries?days=' + day_expire)    
+  });
+
+  // Event when enter is pressed in exp date input form
+  $('#exp-date-input').keyup(function(e){
+      if(e.keyCode == 13)
+      {
+          $(this).trigger("enterKey");
+      }
+  });
+
+</script>

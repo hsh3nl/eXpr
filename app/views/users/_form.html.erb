@@ -1,0 +1,51 @@
+ <div class="form-group">
+    <label for="email">Email address:</label>
+    <%= form.text_field :email, class: "form-control", id: "email" %>
+  </div>
+
+  <div class="form-group">
+    <label for="email">Password:</label>
+    <%= form.password_field :password, class: "form-control", id: "pwd" %>
+  </div>
+  
+  <div class="form-group">
+    <label for="firstname" class="mr-sm-2">First name:</label>
+    <%= form.text_field :first_name, class: "form-control" %>
+  </div>
+  
+  <div class="form-group">
+    <label>Last name:</label>
+    <%= form.text_field :last_name, class: "form-control" %>
+  </div>
+  
+  <div class="form-group" id="country">
+    <label>Country:</label>
+    <%= form.select :country, options_for_select(@countries), class: "form-control" %>
+  </div>
+
+<div class="avatar-field">
+  <%= form.label "Profile picture:" %>
+  <%= form.file_field :avatar %>
+</div><br/>
+
+<style>
+select {
+  width: 50%;
+}
+</style>
+
+<script>
+function validateForm() {
+    var x = document.getElementById("email").value;
+    var y = document.getElementById("pwd").value;
+    if (x == "") {
+        alert("Email must be filled out");
+        return false;
+    }
+
+    if (y == "") {
+        alert("Password must be filled out");
+        return false;
+    }
+}
+</script>

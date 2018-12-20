@@ -1,0 +1,70 @@
+<div class="card-deck">
+  
+<div class="card">
+  <div class="box">
+  <h2>New Grocery</h2>    
+      <hr class="mt-3 mb-2">
+    <%= form_with scope: :grocery, url: user_groceries_path, local: true, :html => {class:'form-group'} do |form| %>
+      <p>
+        <label for="ingrdient">Grocery:</label>
+        <% if @voice_preset_new %>
+          <%= form.text_field :ingredient, id:'ingredient', class: "form-control", value: @voice_preset_new[:item] %><br/>
+        <% else %>
+          <%= form.text_field :ingredient, id:'ingredient', class: "form-control" %><br/>
+        <% end %>
+      </p>
+      <p>
+        <label for="expired_date">Date of expiry:</label>
+        <% if @voice_preset_new %>
+          <%= form.date_field :expired_date, id:'exp-date', class: "form-control", value: @voice_preset_new[:expiry_date] %><br/>
+        <% else %>
+          <%= form.date_field :expired_date, id:'exp-date', class: "form-control" %><br/>
+        <% end %>
+      </p>
+      <p>
+        <%= form.submit 'Submit', :class => 'btn btn-primary' %>   
+      </p>
+    <% end %>
+
+    </div>
+  </div>
+
+    <div class = "card">
+      <div class="ocr">
+        <%= render 'ocr'%>
+      </div>
+    </div>
+    
+    <div class ="card">
+      <div class="voice">
+      <%= render 'voice'%>
+      </div>
+    </div>
+</div>
+
+<style>
+.card {   
+    top: 3vh;
+    margin: 0 auto;
+    width:350px;
+    min-height:5px;
+    background:#fff;
+    box-shadow: 0.2em 0.2em 0.8em 0.1em rgba(83, 83, 83, 0.3);
+    border-radius:0.5em;
+    transition:0.5s;
+}
+
+.voice {
+    text-align: center;
+    padding: 3px;  
+    border: 1px solid blue;
+    border-radius: 6px;
+}
+p {
+  margin: 0px;
+}
+
+.box {
+    margin: 20px;
+}
+</style>

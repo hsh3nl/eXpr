@@ -1,0 +1,135 @@
+<%# VIDEO STREAM %>
+  <button id="capture-button"class="btn btn-primary col-12 text-center" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" data-status='videoOff'>
+    Capture the expiry date?
+  </button>
+  <div class="collapse" id="collapseExample">
+        <div id="screenshot" style="text-align:center;">
+            <video autoplay="true" id="videoElement" style="display: block;"></video>
+            <img id="screenshot-img" hidden>
+            <p>
+                <button class="btn btn-primary btn-sm" id='rescan-button' hidden>Scan Again</button> 
+                <button class="btn btn-primary btn-sm"id="screenshot-button" disabled="">Scan Expiry Date!</button>
+            </p>
+                <div id="parsed-txt"></div>
+        </div>
+</div>
+
+<script>
+
+$( document ).ready(function() {
+
+    // GROCERIES OCR START 
+    const screenshotButton = document.querySelector('#screenshot-button');
+    const img = document.querySelector('#screenshot img');
+    const video = document.querySelector('#videoElement');
+    const canvas = document.createElement('canvas');
+    const parsed_txt = $('#parsed-txt')
+    const expiry_date_form = $('#exp-date')
+    const constraints = {
+    video: {
+            width: 400, 
+            height: 200,
+            facingMode: "environment" }
+    };
+
+    // THIS ACTIVATES THE CAMERA FUNCTION AND REQUESTS PERMISSSION FROM USER
+    const captureVideoButton = document.querySelector('#capture-button');
+    const restartVideoButton = $('#rescan-button')
+    
+    captureVideoButton.onclick = function() {
+    
+    if(captureVideoButton.getAttribute('aria-expanded')=='false'){
+        navigator.mediaDevices.getUserMedia(constraints).
+            then(handleSuccess);
+        function handleSuccess(stream) {
+            screenshotButton.disabled = false;
+            video.srcObject = stream;
+            video.hidden = false;
+        };
+    }
+    else {
+        video.srcObject.getVideoTracks().forEach(track => track.stop());
+        screenshotButton.disabled = true;
+        video.hidden = false;
+        img.src = '';
+        img.hidden = true;        
+        restartVideoButton.attr("hidden",true);
+        screenshotButton.hidden = false;
+        parsed_txt.html('');
+    }
+    };
+
+    restartVideoButton.click(function() {
+        video.hidden = false;
+        img.src = '';
+        img.hidden = true;
+        navigator.mediaDevices.getUserMedia(constraints).
+            then(handleSuccess);
+        function handleSuccess(stream) {
+            screenshotButton.disabled = false;
+            video.srcObject = stream;
+        };
+        restartVideoButton.attr("hidden",true);
+        screenshotButton.hidden = false;
+        parsed_txt.html('');
+
+    });
+
+
+    screenshotButton.onclick = function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        // Assign image data to the image tag
+        img.src = canvas.toDataURL('image/png');
+        img.hidden = false;
+
+        // Stop all video streams.
+        video.srcObject.getVideoTracks().forEach(track => track.stop());
+        video.hidden = true;
+        screenshotButton.hidden = true;
+        restartVideoButton.removeAttr('hidden');
+        restartVideoButton.attr('disabled','true');
+        restartVideoButton.html('Scanning...');
+
+        // Handle POST request to API
+        fetch('/ocr', {
+            method: 'post',
+            body: JSON.stringify({image: {base64: canvas.toDataURL('image/png')}}),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': Rails.csrfToken()
+            },
+            credentials: 'same-origin'
+            }).then(function(response) {
+            restartVideoButton.removeAttr('disabled');
+            restartVideoButton.html('Scan Again'); 
+    
+            response.json().then(function(data){
+                if ( (data.error == 1) ) {
+                    parsed_txt.html("No readable date in the image")
+                }
+                else {
+                    parsed_txt.html("<p>Expiry Date: " + data.date + "</p>"),
+                    expiry_date_form.attr('value',data.date)
+                }
+            })
+        })
+
+    };
+    // GROCERIES OCR END
+    
+});
+</script>
+
+<style>
+#videoElement, #screenshot-img {
+    width: 100%;
+    background-color: #666;
+}
+p {
+    padding: 2px;
+}
+</style>
+

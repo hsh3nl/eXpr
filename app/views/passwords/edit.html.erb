@@ -1,0 +1,40 @@
+<div id="clearance" class="password-reset">
+  <h2><%= t(".title") %></h2>
+
+  <p><%= t(".description") %></p>
+
+  <%= form_for :password_reset,
+        url: user_password_path(@user, token: @user.confirmation_token),
+        html: { method: :put } do |form| %>
+    <div class="password-field">
+      <%= form.label :password %>
+      <%= form.password_field :password %>
+    </div>
+
+    <div class="submit-field">
+      <%= form.submit %>
+    </div>
+  <% end %>
+</div>
+
+
+
+<style>
+
+
+.card {
+    top: 4vh; 
+    margin: 0 auto;
+    margin-bottom:30px;
+    width:350px;
+    min-height:300px;
+    background:#fff;
+    box-shadow: 0.2em 0.2em 0.8em 0.1em rgba(83, 83, 83, 0.3);
+    border-radius:0.5em;
+    transition:0.5s;
+}
+
+.box {
+    margin: 20px;
+}
+</style>

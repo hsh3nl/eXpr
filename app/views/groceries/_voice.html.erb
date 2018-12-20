@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div>
+<div id="voice-record-button">
+  <p><font class="fa fa-microphone" id='voice-icon' style="font-size:32px"></font>   Voice Engine</p>
+      <div id='voice-output'></div>
+  </div>
+
+</div>
+<style>
+p {
+  font-size:1.5em;
+}
+</style>
+<script>
+// VOICE RECORDING SEGMENT
+// recording voice button added in the HTML side
+const ingredient_form = $('#ingredient')
+const expiry_date_form = $('#exp-date')
+const record_btn = document.querySelector('#voice-record-button')
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+
+var recognition = new SpeechRecognition();
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+recognition.maxAlternatives = 1;
+
+const voice_output = document.querySelector('#voice-output')
+
+record_btn.onclick = function() {
+ recognition.start();
+ $('#voice-icon').attr("color", "red");
+ console.log('Ready to receive a command.');
+}
+
+recognition.onresult = function(event) {
+ $("#voice-icon").attr("color", "black");
+ var last = event.results.length - 1;
+ var first_result = event.results[last][0].transcript;
+ var confidence = event.results[0][0].confidence
+ console.log(first_result+ ', detected with confidence: ' + confidence);
+
+ // send a post request with json object containing the result to be analysed
+ // see the post controller private method for algorithm
+ // routes added for the /voice with POST method
+ fetch('/voice', {
+ method: 'post',
+ body: JSON.stringify({text: {value: first_result}}),
+ headers: {
+   'Content-Type': 'application/json',
+   'X-CSRF-Token': Rails.csrfToken()
+ },
+ credentials: 'same-origin'
+ }).then(function(response) {
+ response.json().then(function(data){
+   console.log(data);
+   if (data.item && data.date) {
+    voice_output.textContent = "Voice: " + data.item + " (Expiry Date: " + data.date + ")",
+    expiry_date_form.attr('value',data.date),
+    ingredient_form.attr('value',data.item)
+   } else if (data.item) {
+    voice_output.textContent = "Voice: " + data.item,
+    ingredient_form.attr('value',data.item) 
+   } else if (data.date) {
+    voice_output.textContent = "Expiry Date: " + data.date,
+    expiry_date_form.attr('value',data.date)
+   }
+  })
+ })
+}
+
+recognition.onspeechend = function() {
+ recognition.stop();
+}
+
+
+// VOICE RECORDING FEATURE ENDS
+</script>

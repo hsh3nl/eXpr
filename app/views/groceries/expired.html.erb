@@ -1,0 +1,44 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+<div class="card">
+  <div class="box">
+    <h3>Expired Groceries</h3>
+    <table class="table table-hover mt-3">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style='text-align:center;'>Days Past</th>
+          <th style='text-align:center;'>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @expired.each do |exprd,i| %>
+          <tr>
+            <div>
+
+              <td style='color:red;'><%= exprd.ingredient %></td> 
+              <td style='text-align:center;color:red;'><%= -exprd.expiry_countdown %></td>
+              <td style='text-align:center;'><%= link_to '<i class="far fa-trash-alt"></i>'.html_safe, user_grocery_path(exprd.user, exprd), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+            </div>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<style>
+.card {   
+    top: 10vh;
+    margin: 0 auto;
+    width:350px;
+    min-height:5px;
+    background:#fff;
+    box-shadow: 0.2em 0.2em 0.8em 0.1em rgba(83, 83, 83, 0.3);
+    border-radius:0.5em;
+    transition:0.5s;
+}
+.box {
+    margin: 20px;
+}
+</style>
