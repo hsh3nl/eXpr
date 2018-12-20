@@ -49,6 +49,8 @@ class AvatarUploader < CarrierWave::Uploader::Base
 
   elsif Rails.env.production?
     include Cloudinary::CarrierWave
+    process :tags => ["profile pix"]
+    process :tags => ["expr"]
 
     version :medium do
       process :eager => true
